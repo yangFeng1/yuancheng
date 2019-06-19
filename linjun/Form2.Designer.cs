@@ -135,7 +135,6 @@
             this.close.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(114)))), ((int)(((byte)(114)))));
             this.close.HoverColor = System.Drawing.Color.Empty;
             this.close.HoverImage = null;
-            this.close.IsPureColor = true;
             this.close.Location = new System.Drawing.Point(191, 103);
             this.close.Name = "close";
             this.close.NormalImage = null;
@@ -165,7 +164,6 @@
             this.enterClose.ForeColor = System.Drawing.Color.White;
             this.enterClose.HoverColor = System.Drawing.Color.Empty;
             this.enterClose.HoverImage = null;
-            this.enterClose.IsPureColor = true;
             this.enterClose.Location = new System.Drawing.Point(119, 103);
             this.enterClose.Name = "enterClose";
             this.enterClose.NormalImage = null;
@@ -237,8 +235,13 @@
             this.Controls.Add(this.dSkinPictureBox2);
             this.Controls.Add(this.dSkinPictureBox1);
             this.Controls.Add(this.screen);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.IconRectangle = new System.Drawing.Rectangle(1, 1, 0, 0);
+            this.MaximizeBox = false;
             this.Name = "Form2";
-            this.Text = " n";
+            this.ShowIcon = false;
+            this.ShowSystemButtons = false;
+            this.Text = " ";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.closeTips.ResumeLayout(false);
             this.closeTips.PerformLayout();
@@ -249,8 +252,6 @@
         }
 
         #endregion
-
-        private DSkin.Controls.DSkinPictureBox screen;
         private DSkin.Controls.DSkinPictureBox dSkinPictureBox1;
         private DSkin.Controls.DSkinPictureBox dSkinPictureBox2;
         private DSkin.Controls.DSkinPictureBox dSkinPictureBox3;
@@ -262,5 +263,6 @@
         private DSkin.Controls.DSkinLabel dSkinLabel1;
         private DSkin.Controls.DSkinButton enterClose;
         private DSkin.Controls.DSkinButton close;
+        public DSkin.Controls.DSkinPictureBox screen;
     }
 }

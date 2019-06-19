@@ -37,8 +37,6 @@
             this.dSkinPanel5 = new DSkin.Controls.DSkinPanel();
             this.veriftCodeText = new DSkin.Controls.DSkinTextBox();
             this.dSkinLabel5 = new DSkin.Controls.DSkinLabel();
-            this.Connect = new DSkin.Controls.DSkinPanel();
-            this.dSkinLabel4 = new DSkin.Controls.DSkinLabel();
             this.dSkinPanel4 = new DSkin.Controls.DSkinPanel();
             this.MeetIDText = new DSkin.Controls.DSkinTextBox();
             this.dSkinLabel3 = new DSkin.Controls.DSkinLabel();
@@ -50,10 +48,10 @@
             this.dSkinLabel7 = new DSkin.Controls.DSkinLabel();
             this.dSkinPanel7 = new DSkin.Controls.DSkinPanel();
             this.dSkinLabel6 = new DSkin.Controls.DSkinLabel();
+            this.Connect = new DSkin.Controls.DSkinButton();
             this.dSkinPanel1.SuspendLayout();
             this.dSkinPanel2.SuspendLayout();
             this.dSkinPanel5.SuspendLayout();
-            this.Connect.SuspendLayout();
             this.dSkinPanel4.SuspendLayout();
             this.dSkinPanel3.SuspendLayout();
             this.LocalMeeting.SuspendLayout();
@@ -115,8 +113,8 @@
             // dSkinPanel2
             // 
             this.dSkinPanel2.BackColor = System.Drawing.Color.White;
-            this.dSkinPanel2.Controls.Add(this.dSkinPanel5);
             this.dSkinPanel2.Controls.Add(this.Connect);
+            this.dSkinPanel2.Controls.Add(this.dSkinPanel5);
             this.dSkinPanel2.Controls.Add(this.dSkinPanel4);
             this.dSkinPanel2.Controls.Add(this.dSkinPanel3);
             this.dSkinPanel2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -181,34 +179,6 @@
             this.dSkinLabel5.Size = new System.Drawing.Size(54, 18);
             this.dSkinLabel5.TabIndex = 0;
             this.dSkinLabel5.Text = "验证码：";
-            // 
-            // Connect
-            // 
-            this.Connect.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(79)))), ((int)(((byte)(254)))));
-            this.Connect.Controls.Add(this.dSkinLabel4);
-            this.Connect.DuiBackgroundRender.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(79)))), ((int)(((byte)(254)))));
-            this.Connect.DuiBackgroundRender.Radius = 2;
-            this.Connect.DuiBackgroundRender.RenderBorders = true;
-            this.Connect.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Connect.Location = new System.Drawing.Point(184, 50);
-            this.Connect.Name = "Connect";
-            this.Connect.RightBottom = ((System.Drawing.Image)(resources.GetObject("Connect.RightBottom")));
-            this.Connect.Size = new System.Drawing.Size(64, 64);
-            this.Connect.TabIndex = 3;
-            this.Connect.Text = "dSkinPanel6";
-            this.Connect.Click += new System.EventHandler(this.dSkinPanel6_Paint);
-            this.Connect.Paint += new System.Windows.Forms.PaintEventHandler(this.dSkinPanel6_Paint);
-            // 
-            // dSkinLabel4
-            // 
-            this.dSkinLabel4.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.dSkinLabel4.ForeColor = System.Drawing.Color.White;
-            this.dSkinLabel4.Location = new System.Drawing.Point(13, 21);
-            this.dSkinLabel4.Name = "dSkinLabel4";
-            this.dSkinLabel4.Size = new System.Drawing.Size(39, 24);
-            this.dSkinLabel4.TabIndex = 0;
-            this.dSkinLabel4.Text = "连接";
-            this.dSkinLabel4.Click += new System.EventHandler(this.dSkinPanel6_Paint);
             // 
             // dSkinPanel4
             // 
@@ -360,6 +330,29 @@
             this.dSkinLabel6.TabIndex = 0;
             this.dSkinLabel6.Text = "本地会议室";
             // 
+            // Connect
+            // 
+            this.Connect.BaseColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(79)))), ((int)(((byte)(254)))));
+            this.Connect.ButtonBorderWidth = 1;
+            this.Connect.DialogResult = System.Windows.Forms.DialogResult.None;
+            this.Connect.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(134)));
+            this.Connect.ForeColor = System.Drawing.Color.White;
+            this.Connect.HoverColor = System.Drawing.Color.Empty;
+            this.Connect.HoverImage = null;
+            this.Connect.Location = new System.Drawing.Point(183, 51);
+            this.Connect.Name = "Connect";
+            this.Connect.NormalImage = null;
+            this.Connect.PressColor = System.Drawing.Color.Empty;
+            this.Connect.PressedImage = null;
+            this.Connect.Radius = 10;
+            this.Connect.ShowButtonBorder = true;
+            this.Connect.Size = new System.Drawing.Size(64, 64);
+            this.Connect.TabIndex = 3;
+            this.Connect.Text = "连接";
+            this.Connect.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Connect.TextPadding = 0;
+            this.Connect.Click += new System.EventHandler(this.dSkinPanel6_Paint);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -387,8 +380,6 @@
             this.dSkinPanel2.ResumeLayout(false);
             this.dSkinPanel5.ResumeLayout(false);
             this.dSkinPanel5.PerformLayout();
-            this.Connect.ResumeLayout(false);
-            this.Connect.PerformLayout();
             this.dSkinPanel4.ResumeLayout(false);
             this.dSkinPanel4.PerformLayout();
             this.dSkinPanel3.ResumeLayout(false);
@@ -410,13 +401,9 @@
         private DSkin.Controls.DSkinPanel dSkinPanel3;
         private DSkin.Controls.DSkinLabel dSkinLabel2;
         private DSkin.Controls.DSkinPanel dSkinPanel4;
-        private DSkin.Controls.DSkinTextBox MeetIDText;
         private DSkin.Controls.DSkinLabel dSkinLabel3;
         private DSkin.Controls.DSkinPanel dSkinPanel5;
-        private DSkin.Controls.DSkinTextBox veriftCodeText;
         private DSkin.Controls.DSkinLabel dSkinLabel5;
-        private DSkin.Controls.DSkinPanel Connect;
-        private DSkin.Controls.DSkinLabel dSkinLabel4;
         private DSkin.Controls.DSkinPanel LocalMeeting;
         private DSkin.Controls.DSkinPanel dSkinPanel8;
         private DSkin.Controls.DSkinLabel dSkinLabel8;
@@ -425,6 +412,9 @@
         private DSkin.Controls.DSkinLabel dSkinLabel6;
         private DSkin.Controls.DSkinPictureBox dSkinPictureBox1;
         private DSkin.Controls.DSkinPictureBox dSkinPictureBox2;
+        public DSkin.Controls.DSkinTextBox MeetIDText;
+        public DSkin.Controls.DSkinTextBox veriftCodeText;
+        public DSkin.Controls.DSkinButton Connect;
     }
 }
 

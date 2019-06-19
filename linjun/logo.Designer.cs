@@ -48,9 +48,9 @@
             this.logoIcon.Borders.TopWidth = 0;
             this.logoIcon.Image = null;
             this.logoIcon.Images = null;
-            this.logoIcon.Location = new System.Drawing.Point(61, 27);
+            this.logoIcon.Location = new System.Drawing.Point(0, 0);
             this.logoIcon.Name = "logoIcon";
-            this.logoIcon.Size = new System.Drawing.Size(68, 71);
+            this.logoIcon.Size = new System.Drawing.Size(28, 64);
             this.logoIcon.TabIndex = 0;
             this.logoIcon.Text = "dSkinPictureBox1";
             this.logoIcon.Click += new System.EventHandler(this.dSkinPictureBox1_Click);
@@ -68,12 +68,12 @@
             this.notifyIconList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.notifyIconListOut});
             this.notifyIconList.Name = "notifyIconList";
-            this.notifyIconList.Size = new System.Drawing.Size(181, 48);
+            this.notifyIconList.Size = new System.Drawing.Size(101, 26);
             // 
             // notifyIconListOut
             // 
             this.notifyIconListOut.Name = "notifyIconListOut";
-            this.notifyIconListOut.Size = new System.Drawing.Size(180, 22);
+            this.notifyIconListOut.Size = new System.Drawing.Size(100, 22);
             this.notifyIconListOut.Text = "退出";
             this.notifyIconListOut.Click += new System.EventHandler(this.notifyIconListOut_Click);
             // 
@@ -82,9 +82,10 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
-            this.ClientSize = new System.Drawing.Size(200, 141);
+            this.ClientSize = new System.Drawing.Size(28, 64);
             this.ControlBox = false;
             this.Controls.Add(this.logoIcon);
+            this.MaximizeBox = false;
             this.Name = "logo";
             this.Text = "";
             this.Load += new System.EventHandler(this.logo_Load);

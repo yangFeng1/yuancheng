@@ -1,12 +1,10 @@
-﻿using DSkin.Forms;
+﻿
+using DSkin.Forms;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace linjun
@@ -17,13 +15,8 @@ namespace linjun
         
         public delegate void SetMainFormTopMostHandle(bool topmost);//注册一个委托用来控制logo的变化
         public event SetMainFormTopMostHandle SetMainFormTopMost;
-        public delegate void NetCallbackHandle(int nCmd, string buffer, int nlen, IntPtr user);
-        private event NetCallbackHandle Netcallback;
-        public delegate void MultiCallbackHandle(long lChannel, int nCmd, string buffer, int nlen, int nMark, IntPtr user);
-        private event MultiCallbackHandle MultiCallback;[DllImport("w2net.dll")]
-        internal static extern int CreateUDPService(MultiCallbackHandle MultiCallback, NetCallbackHandle UDPCallback, IntPtr user);//1 
 
-        private delegate void MeetingUIHandler(Control Con,string ImgUrl);//开启会议中控制投屏等状态的变化
+        private delegate void MeetingUIHandler(Control Con,string ImgUrl,bool flag);//开启会议中控制投屏等状态的变化
         private event MeetingUIHandler MeetingUI;
 
         //会议结束回调函数
@@ -31,23 +24,15 @@ namespace linjun
         //public event lpGetSvrInfoHandle lpGetSvrInfo;
         public delegate void lpGetClientInfo(int p_iRet);
         public event lpGetClientInfo lpGetClientInfoD;
-        //SDK接口
-        [DllImport("w2net.dll")]internal static extern void DestroyUDPService(int lservice);
-        [DllImport("w2net.dll")]internal static extern int StartSession(int lservice, string url, int nPort);
-        //2 [DllImport("w2net.dll")]internal static extern int StartMulticast(int lservice, string url, int nPort);
-        [DllImport("w2net.dll")] internal static extern int SendSession(int lservice, int nCmd, string buffer, int nlen);
-        [DllImport("w2net.dll")] internal static extern int SendMulticast(int lservice, byte[] buffer, int nlen);
-        [DllImport("w2net.dll")] internal static extern int SendServer(int lservice, uint lChannel, ref string buffer, int nlen);
-        [DllImport("w2net.dll")] internal static extern int StartSessionCapture(int lservice, int codec_type, int width, int height, int bitrate, int framerate);
-        [DllImport("w2net.dll")] internal static extern void StopSessionCapture(int lservice); 
-        [DllImport("ClientSdk.dll")]
-        internal static extern int ClientExitMeet(string p_pszDispatchIp, ushort p_siDispatchPort, string p_pszp2pIp, ushort p_uip2pPort, string p_pszClientId, string p_pszMeetId, byte[] p_pszResult, int p_iSize);
-        [DllImport("ClientSdk.dll")]
-        internal static extern int ScreenCreateMeet(string p_pszDispatchIp, ushort p_siDispatchPort, string p_pszp2pIp, ushort p_uip2pPort, string p_pszMeetId, string p_pszPasswd, Byte[] p_pszResult, int p_iSize);
-        [DllImport("ClientSdk.dll")]
-         internal static extern  void setClientCallBack(lpGetClientInfo p_funcRecvSvrInfo);
+        
+        [DllImport("pss_client_sdk.dll")]//客户端开启投屏
+        internal static extern bool StartPushVideo(string ScreenIp);
+        [DllImport("pss_client_sdk.dll")]//结束投屏
+        internal static extern  void StopPushVideo();
+        [DllImport("pss_client_sdk.dll")]//退出会议
+        internal static extern int ClientExitMeet(string p_pszMeetId, string p_pszClientId);
         //全局变量
-      
+
         Rectangle rect;//屏幕分辨率
         int lservice = 0;//udp服务id
         int SSeen = 1;
@@ -55,63 +40,68 @@ namespace linjun
         public Form2()
         {
             InitializeComponent();
-            lpGetClientInfoD += new lpGetClientInfo(lpGetSvrInfoCallback);
-          setClientCallBack(lpGetClientInfoD);
-            
+            // setClientCallBack(lpGetClientInfoD);
+            dSkinPictureBox1.BackgroundImage = linjun.Properties.Resources.meet_client_mute_default;
+            dSkinPictureBox2.BackgroundImage = linjun.Properties.Resources.meet_client_video_default;
+            dSkinPictureBox3.BackgroundImage = linjun.Properties.Resources.meet_client_desk_default;
+            this.ShowInTaskbar = false;
         }
         bool ExitFLag = true;
 
-
+         
         private void enterClose_Paint(object sender, EventArgs e)//退出会议
 
         {
-            Byte[] result = new byte[512];
             ExitFLag = false;
-                ClientExitMeet(GlobalData.DispatchIp, GlobalData.DispatchPort, GlobalData.P2PIP, GlobalData.P2PPort, GlobalData.clientid, GlobalData.MeetID, result, 1024);
-           // ClientExitMeet(GlobalData.DispatchIp, GlobalData.DispatchPort, GlobalData.P2PIP, GlobalData.P2PPort, "C2019050916384231701073", "10223", result, 1024);
-            string KeyStr1 = Encoding.Default.GetString(result).TrimEnd('\0');
-            ResultData JsonStr = JsonConvert.DeserializeObject<ResultData>(KeyStr1);
-            if (JsonStr.ErrCode != "0")
+            int res = ClientExitMeet(GlobalData.MeetID, GlobalData.clientid);
+            if (res == -2)
+            {
+                MessageBox.Show("参数错误");
+            }
+            //else if ((res == 0) || (res == -1))
+            //{
+            //    MessageBox.Show("调度服务器连接失败");
+            //}
+            GlobalData.connectStatus = false;
+        }
+        /// <summary>
+        /// 客户端退出会议处理
+        /// </summary>
+        /// <param name="JsonStr">结果</param>
+        private delegate void ClientExitMeetUI();
+        public void ClientExitMeetResult(string p_pszData)
+        {
+            //"{\n\t\"Cmd\":\t\"ScreenCancelMeet\",\n\t\"Data\":\t{\n\t\t\"Result\":\t\"true\",\n\t\t\"MeetId\":\t\"10202\"\n\t}\n}"
+            // "{\n\t\"Cmd\":\t\"ClientExitMeet\",\n\t\"Data\":\t{\n\t\t\"Result\":\t\"true\",\n\t\t\"ErrorCode\":\t0,\n\t\t\"MeetId\":\t\"10202\"\n\t}\n}"
+            ResultData JsonStr = JsonConvert.DeserializeObject<ResultData>(p_pszData);
+            if (JsonStr.Data.result != "true")
             {
                 MessageBox.Show(JsonStr.ErrMsg);
             }
             else
             {
-               // SendSession(lservice, 0x10004, "", 0);
-                StopSessionCapture(lservice);
-                DestroyUDPService(lservice);
+        
+                if (!PushVideoFlag)//结束会议室如 正在投屏  结束投屏
+                {
+                    Thread thread = new Thread(new ThreadStart(PushVideo));//创建线程
+                    thread.Start();
+                }
                 screenFlag = false;
                 screen.BackgroundImage = linjun.Properties.Resources.meet_client_screen_default;
                 ExitFLag = true;
                 SetMainFormTopMost(true);//调用委托改变logo的图片
+                ClientExitMeetUI Display = () =>
+                {
+                    closeTips.Hide();
+                    GlobalData.Form2.Hide();
+                    //this.BackgroundImage = null;
+                };
+                Invoke(Display);
                 GlobalData.connectStatus = false;
-                closeTips.Hide();
-                this.Hide();
+                
             }
         }
-        private void lpGetSvrInfoCallback(int code)//会议室断开回调函数
-        {
-            //MessageBox.Show(code.ToString());
-            if ((code == 2) && ExitFLag)//退出会议
-            {
-
-                try
-                {
-                    StopSessionCapture( lservice);
-                    DestroyUDPService( lservice);
-                    screenFlag = false;
-                    screen.BackgroundImage = linjun.Properties.Resources.meet_client_screen_default;
-                    ccc += new ddd(a);
-                    Invoke(ccc);
-                }
-                catch
-                {
-                  //  MessageBox.Show("1");
-                }
-            }
-        }
-        public delegate void ddd();
-        public event ddd ccc;
+      
         private  void a()
         {
             try
@@ -142,11 +132,17 @@ namespace linjun
         /// </summary>
         /// <param name="Con">需要改变ui的控件</param>
         /// <param name="ImgUrl">更换的图片地址</param>
-        private void MeetingUIEvent(Control Con, string ImgUrl)
+        /// <param name="flag">开启或者关闭</param>
+        private void MeetingUIEvent(Control Con, string ImgUrl,bool flag)
         {
             Con.BackgroundImage = (Image)linjun.Properties.Resources.ResourceManager.GetObject(ImgUrl);
+            if (flag)//true为开启功能
+            {
+                SetMainFormTopMost(true);//调用委托改变logo的图片
+                this.Hide();
+            }
         }
-        private void closeBtn_Click(object sender, EventArgs e)//退出会议
+        private void closeBtn_Click(object sender, EventArgs e)//退出会议提示信息
         {
             closeTips.Show();
         }
@@ -158,57 +154,102 @@ namespace linjun
             closeTips.Hide();
             this.Hide();
         }
-       /// <summary>
-       /// 点击开始结束投屏
-       /// </summary>
-       private void ProjectionScreen()
+        bool PushVideoFlag = true;//当前是否在投屏
+        private void PushVideo()//开启或结束投屏
         {
-            if (screenFlag)
+            if (PushVideoFlag)
             {
-                screenFlag = false;
-                SendSession(lservice, 0x10004, "", 0);
-                StopSessionCapture(lservice);
-                DestroyUDPService(lservice);
-                Invoke(MeetingUI, screen, "meet_client_screen_default");
-                //screen.BackgroundImage = linjun.Properties.Resources.meet_client_screen_default;
+                
+                    if (StartPushVideo(GlobalData.ScreenIp))//投屏成功返回true
+                    {
+                        PushVideoFlag = false;
+                        Invoke(MeetingUI, screen, "meet_client_screen_selected", true);
+                    }
+                    else
+                    {
+                        screenFlag = false;
+                        MessageBox.Show("投屏失败");
+                    }
+               
             }
             else
             {
+                StopPushVideo();
+                PushVideoFlag = true;
+                Invoke(MeetingUI, screen, "meet_client_screen_default", false);
+            }
+        }
+        /// <summary>
+        /// 供其他类调用 改变投屏按钮图片
+        /// </summary>
+        public void InvokeMeetingUI(bool flag)
+        {
+            if (flag)
+            {
+                PushVideoFlag = true;
+                Invoke(MeetingUI, screen, "meet_client_screen_default", true);
+            }
+            else
+            {
+                PushVideoFlag = true;
+                Invoke(MeetingUI, screen, "meet_client_screen_default", false);
+            }
+           
+        }
+       /// <summary>
+       /// 点击开始结束投屏
+       /// </summary>
+        private void ProjectionScreen()
+        {
+            if (screenFlag)//结束投屏
+            {
+                screenFlag = false;
+               
+                Thread thread = new Thread(new ThreadStart(PushVideo));//创建线程
+                thread.Start();
+              //  StopPushVideo();
+          
+            }
+            else//开始投屏
+            {
                 screenFlag = true;
-                Invoke(MeetingUI, screen, "meet_client_screen_selected");
-                //screen.BackgroundImage = linjun.Properties.Resources.meet_client_screen_selected;
-                Netcallback += new NetCallbackHandle(NetCallbackHand);
-                MultiCallback += new MultiCallbackHandle(MultiEventCallback);
-                IntPtr IL = new IntPtr();
-                lservice = CreateUDPService(MultiCallback, Netcallback, IL);
-                // StartMulticast(lservice, "235.6.7.8", 15678);
-                //Thread.Sleep(500);
-                Byte[] a = new byte[512];
-                //    SendMulticast(lservice,a,512);
-                //string address = "192.168.12.70";
-                string address = "172.16.1.51";
-                int port = 18765;
-                SSeen = StartSession(lservice, address, port);
-                SendSession(lservice, 0x10003, "", 0);
-                //StartSessionCapture(lservice, 1, 1920, 1080, 1024, 8);
-                StartSessionCapture(lservice, 1, 1920, 1080, 1024, 8);
+              //  StartPushVideo();
+                Thread thread = new Thread(new ThreadStart(PushVideo));//创建线程
+                thread.Start();
+                
             }
         }
         private void screen_Click(object sender, EventArgs e)
         {
             ProjectionScreen();
         }
-       
-    
-        public class ResultData
+
+
+        public class ResultData//数据处理格式
         {
-            public string ip { get; set; }
-            public string ErrCode { get; set; }
             public string pwd { get; set; }
             public string result { get; set; }
+            public string ErrCode { get; set; }
             public string ErrMsg { get; set; }
+            public string clientid { get; set; }
+            public string ip { get; set; }
             public string meetid { get; set; }
             public string verifycode { get; set; }
+            public string Cmd { get; set; }
+            public Data Data { get; set; }
+        }
+        public class Data
+        {
+            public string pwd { get; set; }
+            public string result { get; set; }
+            public string ErrCode { get; set; }
+            public string ErrMsg { get; set; }
+            public string clientid { get; set; }
+            public string ip { get; set; }
+            public string MeetId { get; set; }
+            public string verifycode { get; set; }
+            public string city { get; set; }
+            public string province { get; set; }
         }
         private void dSkinButton2_Click(object sender, EventArgs e)
         {
@@ -219,17 +260,6 @@ namespace linjun
         {
 
         }
-        private void NetCallbackHand(int nCmd, string buffer, int nlen, IntPtr user) {//服务器回调
-            MessageBox.Show("2");
-        }
-        private void MultiEventCallback(long lChannel, int nCmd, string buffer, int nlen, int nMark, IntPtr user) {//主播回调
-            MessageBox.Show("2");
-        }
-
-
-
-
-
         //UI操作
         private void dSkinPictureBox5_Click(object sender, EventArgs e)
         {
@@ -281,5 +311,37 @@ namespace linjun
             close.BaseColor = System.Drawing.Color.Transparent;
             close.ButtonBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(114)))), ((int)(((byte)(114)))));
         }
-    }
+       
+       
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 }
